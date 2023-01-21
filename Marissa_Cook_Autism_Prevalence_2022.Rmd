@@ -1,0 +1,118 @@
+---
+title: "Autism Studies Data"
+author: "Marissa Cook"
+date: '2022'
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Analyzing data of autistic studies
+
+```{r}
+setwd("C://Users/maris/Downloads/Code/Autism_data")
+autism_studies_stats <- read.csv("autism_prevalence_studies.csv")
+
+```
+
+Sort Author by alphabet
+
+```{r}
+Author_sorted <- sort(autism_studies_stats$Author)
+
+```
+
+Studies published in the 2000s
+
+```{r}
+studies_2000s <- subset(autism_studies_stats, Year.Published > 1999)
+
+```
+
+What is the average participant age in these most recent studies?
+
+```{r}
+class(studies_2000s$Age.Range)
+age_range_factored<- as.factor(studies_2000s$Age.Range)
+na.omit(age_range_factored)
+age_range_factored <- as.data.frame(age_range_factored)
+average_age_2000s <- mean(age_range_factored)
+
+```
+The structure of the data for the age range of participants used is not best suited for this analysis.
+
+
+What is the average sample size?
+(To remove NA values without altering initial dataset)
+
+```{r}
+sample_size <- na.omit(studies_2000s$Sample.Size)
+average_n <- mean(sample_size)
+print(average_n)
+print(paste0(" The average sample size is ", average_n))
+```
+
+What is the average sample size of studies completed before the 2000s?
+
+```{r}
+studies_1900s <- subset(autism_studies_stats, Year.Published <2000)
+sample_n_1900s <- mean(studies_1900s$Sample.Size)
+print(paste0(" The average sample size for studies published before 2000 is ", sample_n_1900s))
+
+```
+
+Sample size comparison
+
+```{r}
+print(paste0(" The sample size for studies published in the 2000s ", (average_n), " is larger than the sample size for studies published before the 2000s ", sample_n_1900s))
+```
+
+Which autism types were analyzed in all studies?
+
+```{r}
+classified_types_ASD <- unique(autism_studies_stats$Autism.Types.Included)
+print(classified_types_ASD)
+```
+
+Did the ASD prevalence estimate per 1000 individuals increase over the years?
+
+```{r}
+prevalence_2000s <- mean(studies_2000s$ASD.Prevalence.Estimate.per.1.000)
+prevalence_1900s <- mean(studies_1900s$ASD.Prevalence.Estimate.per.1.000)
+print(" The prevalence is reported to be higher in the 2000s.")
+```
+
+Is autism more prevalent among a specific gender?
+
+```{r}
+average_ratio <- mean(autism_studies_stats$Male.Female.Sex.Ratio)
+class(autism_studies_stats$Male.Female.Sex.Ratio)
+sex_ratio <- na.omit(autism_studies_stats$Male.Female.Sex.Ratio)
+average_ratio <- mean(sex_ratio)
+print( "Autism disorders are more prevalent among males, possibly 4x as likely.")
+```
+
+Graph number of studies over the years
+Install ggplot2 from packages
+
+```{r}
+library(ggplot2)
+tally_years <- table(autism_studies_stats$Year.Published)
+tally_years <- as.data.frame(tally_years)
+Published_Study_Progression_plot = ggplot(tally_years, aes(x=Var1, y= Freq))+
+  geom_line()+
+  geom_point(shape=5, color= "black", fill= "red", size=2 )+
+  ggtitle("Progression of Autism Studies Published")+
+  labs(x= "Years", 
+       y= "Amount of Studies Published")+
+  scale_x_discrete(label= function(x) stringr:: str_trunc(x,12))+
+  theme(axis.text.x = element_text(angle= 90, hjust = 25, vjust = 2))
+
+print(Published_Study_Progression_plot)
+```
+
